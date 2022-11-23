@@ -1,0 +1,66 @@
+version: "3"
+
+services:
+  db:
+    container_name: db
+    image: postgres:${POSTGRES_VERSION}
+    restart: always
+    env_file: .env
+    volumes:
+      - db-data:/var/lib/postgresql/data
+
+  redis:
+    image: redis:alpine
+
+  rabbitmq:
+    image: rabbitmq:3.8-management
+    env_file: .env
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+
+  celery:
+    build: .
+    command: ["celery", "-A", "aforos", "worker", "-l", "info", "-Q", "default,light,heavy"]
+    env_file: .env
+    volumes:
+      - .:/appdir
+    depends_on:
+      - db
+      - rabbitmq
+      - redis
+
+  celery-beat:
+    build: .
+    command: ["celery", "-A", "aforos", "beat", "-l", "info"]
+    env_file: .env
+    volumes:
+      - .:/appdir
+    depends_on:
+      - db
+      - rabbitmq
+      - redis
+
+  web:
+    container_name: aforos
+    restart: always
+    env_file: .env
+    build:
+      context: .
+    command:
+      - /bin/sh
+      - -c
+      - |
+          pip install -r requirements.txt
+          python manage.py collectstatic --noinput
+          python manage.py runserver 0.0.0.0:8000
+    volumes:
+      - .:/appdir
+    ports:
+      - '8000:8000'
+    tty: true
+    depends_on:
+      - db
+
+volumes:
+  db-data:
