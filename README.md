@@ -1,0 +1,1 @@
+# tallerdjango2022
