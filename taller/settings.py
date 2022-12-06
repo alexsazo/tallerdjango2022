@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/3.2/ref/settings/
 """
 
 from pathlib import Path
+import os
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -25,7 +26,7 @@ SECRET_KEY = 'django-insecure-!qy*efhz89pl=nvy56q*14+pnx)@h+=!wbw$-ig9!wx)*$dw1g
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ["*"]
 
 
 # Application definition
@@ -37,6 +38,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'aforos'
 ]
 
 MIDDLEWARE = [
@@ -75,11 +77,14 @@ WSGI_APPLICATION = 'taller.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': os.environ['DB_ENGINE'],
+        'NAME': os.environ['DB_NAME'],
+        'USER': os.environ['DB_USER'],
+        'PASSWORD': os.environ['DB_PASSWORD'],
+        'HOST': os.environ['DB_HOST'],
+        'PORT': os.environ['DB_PORT'],
     }
 }
-
 
 # Password validation
 # https://docs.djangoproject.com/en/3.2/ref/settings/#auth-password-validators
